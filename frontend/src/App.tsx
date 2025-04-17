@@ -22,7 +22,9 @@ ChartJS.register(
   Legend
 );
 
-const socket = io("http://192.168.0.119:4000"); // En producción puede ser sin host
+const host = import.meta.env.VITE_HOST;
+
+const socket = io(host);
 
 interface TemperatureData {
   value: number;
@@ -33,8 +35,7 @@ function App() {
   const [data, setData] = useState<TemperatureData[]>([]);
 
   useEffect(() => {
-    // Obtener datos históricos al cargar
-    fetch("http://192.168.0.119:4000/api/temperature")
+    fetch(host + "/api/temperature")
       .then((res) => res.json())
       .then((res) => setData(res));
 
