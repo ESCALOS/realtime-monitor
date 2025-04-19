@@ -1,0 +1,19 @@
+{
+    "name": "frontend-dev",
+    "dockerFile": "../Dockerfile.dev",
+    "context": "..",
+    "workspaceFolder": "/app",
+    "forwardPorts": [
+        5173
+    ],
+    "postCreateCommand": "npm install",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "dsznajder.es7-react-js-snippets"
+            ]
+        }
+    }
+}

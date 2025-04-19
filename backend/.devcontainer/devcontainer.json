@@ -1,0 +1,20 @@
+{
+    "name": "backend-dev",
+    "dockerFile": "../Dockerfile.dev",
+    "context": "..",
+    "workspaceFolder": "/app",
+    "forwardPorts": [
+        4000
+    ],
+    "postCreateCommand": "npm install",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "mongodb.mongodb-vscode",
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    }
+}

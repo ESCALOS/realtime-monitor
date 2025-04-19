@@ -1,0 +1,18 @@
+FROM node:slim
+
+WORKDIR /app
+
+# Copiar archivos de configuración
+COPY package*.json ./
+
+# Instalar dependencias
+RUN npm install
+
+# Copiar el resto del proyecto
+COPY . .
+
+# Exponer el puerto de desarrollo de Vite (por defecto es 5173)
+EXPOSE 5173
+
+# Comando para desarrollo
+CMD ["npm", "run", "dev"]

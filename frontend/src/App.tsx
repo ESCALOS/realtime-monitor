@@ -22,7 +22,7 @@ ChartJS.register(
   Legend
 );
 
-const host = import.meta.env.VITE_HOST;
+const host = import.meta.env.VITE_API_HOST;
 
 const socket = io(host);
 
