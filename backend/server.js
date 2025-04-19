@@ -61,6 +61,63 @@ app.get("/api/temperature", async (req, res) => {
   res.json(data.reverse()); // para que se muestre en orden cronológico
 });
 
+// Ruta para exportar los datos en XLSX
+app.get("/api/temperature/export/xlsx", async (req, res) => {
+  try {
+    const { from, to } = req.query;
+
+    const filter = {};
+    if (from && to) {
+      if (from == to) {
+        filter.timestamp = new Date(from);
+      } else {
+        filter.timestamp = {
+          $gte: new Date(from),
+          $lte: new Date(to),
+        };
+      }
+    } else if (from) {
+      filter.timestamp = { $gte: new Date(from) };
+    } else if (to) {
+      filter.timestamp = { $lte: new Date(to) };
+    }
+    const data = await Temperature.find(filter).sort({ timestamp: 1 });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Temperaturas");
+
+    worksheet.columns = [
+      { header: "Fecha y hora", key: "timestamp", width: 30 },
+      { header: "Temperatura (°C)", key: "value", width: 20 },
+    ];
+
+    data.forEach((item) => {
+      worksheet.addRow({
+        timestamp: item.timestamp,
+        value: item.value,
+      });
+    });
+
+    // Formato de la columna de fecha (como fecha y hora en Excel)
+    worksheet.getColumn("timestamp").numFmt = "dd-mm-yyyy hh:mm:ss";
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=temperaturas.xlsx"
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error("❌ Error exportando XLSX:", err);
+    res.status(500).send("Error al generar el archivo");
+  }
+});
+
 io.on("connection", (socket) => {
   console.log("📡 Cliente conectado");
 
