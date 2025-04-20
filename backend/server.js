@@ -4,7 +4,6 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const { Server } = require("socket.io");
 require("dotenv").config();
-
 const ExcelJS = require("exceljs");
 
 const app = express();
@@ -20,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 // Conexión a MongoDB
-const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/monitor";
+const mongoUri = process.env.MONGO_URI || "mongodb://localhost/monitor";
 mongoose
   .connect(mongoUri)
   .then(() => console.log("✅ Conectado a MongoDB"))
@@ -57,10 +56,25 @@ app.post("/api/temperature", async (req, res) => {
   res.status(201).json({ success: true });
 });
 
-// Ruta para obtener los últimos N registros
+// Ruta para obtener los registros
 app.get("/api/temperature", async (req, res) => {
-  const data = await Temperature.find().sort({ timestamp: -1 }).limit(20);
-  res.json(data.reverse()); // para que se muestre en orden cronológico
+  const { from, to } = req.query;
+
+  const filter = {};
+  if (from && to) {
+    filter.timestamp = {
+      $gte: new Date(from),
+      $lte: new Date(to),
+    };
+  } else if (from) {
+    filter.timestamp = { $gte: new Date(from) };
+  } else if (to) {
+    filter.timestamp = { $lte: new Date(to) };
+  }
+
+  const data = await Temperature.find(filter).sort({ timestamp: 1 });
+
+  res.json(data);
 });
 
 // Ruta para exportar los datos en XLSX
@@ -70,14 +84,10 @@ app.get("/api/temperature/export/xlsx", async (req, res) => {
 
     const filter = {};
     if (from && to) {
-      if (from == to) {
-        filter.timestamp = new Date(from);
-      } else {
-        filter.timestamp = {
-          $gte: new Date(from),
-          $lte: new Date(to),
-        };
-      }
+      filter.timestamp = {
+        $gte: new Date(from),
+        $lte: new Date(to),
+      };
     } else if (from) {
       filter.timestamp = { $gte: new Date(from) };
     } else if (to) {
