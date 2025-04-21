@@ -20,7 +20,6 @@ const TemperatureChart: React.FC<Props> = ({ data }) => {
     chart: {
       id: "area-datetime",
       type: "area",
-      height: 350,
       zoom: {
         autoScaleYaxis: true,
       },
@@ -109,6 +108,16 @@ const TemperatureChart: React.FC<Props> = ({ data }) => {
       tickAmount: 6,
       labels: {
         datetimeUTC: true,
+        style: {
+          fontSize: "24px",
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          fontSize: "24px",
+        },
       },
     },
     tooltip: {
@@ -125,6 +134,22 @@ const TemperatureChart: React.FC<Props> = ({ data }) => {
         stops: [0, 100],
       },
     },
+    grid: {
+      show: true,
+      borderColor: "#90A4AE",
+      strokeDashArray: 0,
+      position: "back",
+      xaxis: {
+        lines: {
+          show: true,
+        },
+      },
+      yaxis: {
+        lines: {
+          show: true,
+        },
+      },
+    },
   };
 
   return (
@@ -132,7 +157,7 @@ const TemperatureChart: React.FC<Props> = ({ data }) => {
       options={options}
       series={series}
       type="area"
-      height={350}
+      height={550}
     />
   );
 };
