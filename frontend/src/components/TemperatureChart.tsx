@@ -109,20 +109,20 @@ const TemperatureChart: React.FC<Props> = ({ data }) => {
       labels: {
         datetimeUTC: true,
         style: {
-          fontSize: "24px",
+          fontSize: "20px",
         },
       },
     },
     yaxis: {
       labels: {
         style: {
-          fontSize: "24px",
+          fontSize: "20px",
         },
       },
     },
     tooltip: {
       x: {
-        format: "dd MMM yyyy HH:mm:ss",
+        format: "dd MMM yyyy HH:mm",
       },
     },
     fill: {
