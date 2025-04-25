@@ -1,5 +1,6 @@
 import { PlayCircle, StopCircle } from "lucide-react";
 import { SessionStatus } from "../hooks/useTemperatureSession";
+import { ConfirmPopup } from "./ConfirmPopup";
 
 type Props = {
   start: () => void;
@@ -14,20 +15,17 @@ export default function Buttons({ start, stop, status }: Props) {
     <div className="flex justify-around items-center">
       {status === "idle" || status === "stopped" ? (
         <button
-          className="rounded-full bg-green-500 text-white hover:bg-green-700 cursor-pointer"
           onClick={start}
+          className="rounded-full bg-green-500 text-white hover:bg-green-700 cursor-pointer"
         >
           <PlayCircle size={iconSize} />
         </button>
       ) : null}
 
       {(status === "running" || status === "paussed") && (
-        <button
-          onClick={stop}
-          className="rounded-full bg-red-500 text-white hover:bg-red-700 cursor-pointer"
-        >
+        <ConfirmPopup onConfirm={stop}>
           <StopCircle size={iconSize} />
-        </button>
+        </ConfirmPopup>
       )}
     </div>
   );
