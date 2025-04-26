@@ -2,11 +2,23 @@ import React from "react";
 import { useTemperatureSession } from "../hooks/useTemperatureSession";
 import TemperatureChart from "./TemperatureChart";
 import Buttons from "./Buttons";
-import Stadistics from "./Statistics";
+import Statistics from "./Statistics";
 
 const Monitor: React.FC = () => {
-  const { status, data, start, stop, elapsedTime, lastTemp, deltaTemp } =
-    useTemperatureSession();
+  const {
+    elapsedTime,
+    elapsedSinceFirstCrack,
+    showFirstCrackTimer,
+    toggleView,
+    markFirstCrack,
+    firstCrackTime,
+    start,
+    stop,
+    status,
+    lastTemp,
+    deltaTemp,
+    data,
+  } = useTemperatureSession();
 
   return (
     <div className="p-4 mx-auto space-y-6">
@@ -22,8 +34,14 @@ const Monitor: React.FC = () => {
 
       <div className="flex gap-4 w-full justify-center items-center">
         <Buttons start={start} stop={stop} status={status} />
-        <Stadistics
+        <Statistics
+          status={status}
+          showFirstCrackTimer={showFirstCrackTimer}
           elapsedTime={elapsedTime}
+          elapsedSinceFirstCrack={elapsedSinceFirstCrack}
+          toggleView={toggleView}
+          markFirstCrack={markFirstCrack}
+          firstCrackTime={firstCrackTime}
           lastTemp={lastTemp}
           deltaTemp={deltaTemp}
         />
