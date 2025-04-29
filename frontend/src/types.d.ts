@@ -1,4 +1,5 @@
-export interface TemperatureData {
-  value: number;
+export interface SensorsData {
+  temperature: number;
+  rpm: number;
   timestamp: string;
 }

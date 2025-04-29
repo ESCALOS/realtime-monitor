@@ -2,10 +2,10 @@
 import { ApexOptions } from "apexcharts";
 import React from "react";
 import ReactApexChart from "react-apexcharts";
-import { TemperatureData } from "../types";
+import { SensorsData } from "../types";
 
 interface Props {
-  data: TemperatureData[];
+  data: SensorsData[];
 }
 
 const options: ApexOptions = {
@@ -148,7 +148,7 @@ const TemperatureChart: React.FC<Props> = ({ data }) => {
   const series = [
     {
       name: "Temperatura (°C)",
-      data: data.map((d) => [new Date(d.timestamp).getTime(), d.value]),
+      data: data.map((d) => [new Date(d.timestamp).getTime(), d.temperature]),
     },
   ];
 

@@ -16,6 +16,7 @@ const Monitor: React.FC = () => {
     stop,
     status,
     lastTemp,
+    lastRpm,
     deltaTemp,
     data,
   } = useTemperatureSession();
@@ -43,6 +44,7 @@ const Monitor: React.FC = () => {
           markFirstCrack={markFirstCrack}
           firstCrackTime={firstCrackTime}
           lastTemp={lastTemp}
+          lastRpm={lastRpm}
           deltaTemp={deltaTemp}
         />
       </div>

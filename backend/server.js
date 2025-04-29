@@ -26,38 +26,44 @@ mongoose
   .catch((err) => console.error("❌ Error en MongoDB:", err));
 
 // Modelo de temperatura
-const TemperatureSchema = new mongoose.Schema({
-  value: Number,
+const SensorsSchema = new mongoose.Schema({
+  temperature: Number,
+  rpm: Number,
   timestamp: {
     type: Date,
     default: Date.now,
   },
 });
 
-const Temperature = mongoose.model("Temperature", TemperatureSchema);
+const Sensors = mongoose.model("Sensors", SensorsSchema);
 
 // Ruta para recibir datos del ESP32
-app.post("/api/temperature", async (req, res) => {
-  const { value } = req.body;
+app.post("/api/sensors", async (req, res) => {
+  const { temperature, rpm } = req.body;
 
-  if (typeof value !== "number") {
-    return res.status(400).json({ error: "Valor inválido" });
+  if (typeof temperature !== "number") {
+    return res.status(400).json({ error: "Temperatura inválida" });
   }
 
-  const temperature = new Temperature({ value });
-  await temperature.save();
+  if (typeof rpm !== "number") {
+    return res.status(400).json({ error: "RPM inválida" });
+  }
+
+  const sensors = new Sensors({ temperature, rpm });
+  await sensors.save();
 
   // Emitimos a todos los clientes conectados
-  io.emit("new-temperature", {
-    value: temperature.value,
-    timestamp: temperature.timestamp,
+  io.emit("new-sensors-data", {
+    temperature: sensors.temperature,
+    rpm: sensors.rpm,
+    timestamp: sensors.timestamp,
   });
 
   res.status(201).json({ success: true });
 });
 
 // Ruta para obtener los registros
-app.get("/api/temperature", async (req, res) => {
+app.get("/api/sensors", async (req, res) => {
   const { from, to } = req.query;
 
   const filter = {};
@@ -72,13 +78,13 @@ app.get("/api/temperature", async (req, res) => {
     filter.timestamp = { $lte: new Date(to) };
   }
 
-  const data = await Temperature.find(filter).sort({ timestamp: 1 });
+  const data = await Sensors.find(filter).sort({ timestamp: 1 });
 
   res.json(data);
 });
 
 // Ruta para exportar los datos en XLSX
-app.get("/api/temperature/export/xlsx", async (req, res) => {
+app.get("/api/sensors/export/xlsx", async (req, res) => {
   try {
     const { from, to } = req.query;
 
@@ -93,20 +99,22 @@ app.get("/api/temperature/export/xlsx", async (req, res) => {
     } else if (to) {
       filter.timestamp = { $lte: new Date(to) };
     }
-    const data = await Temperature.find(filter).sort({ timestamp: 1 });
+    const data = await Sensors.find(filter).sort({ timestamp: 1 });
 
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Temperaturas");
+    const worksheet = workbook.addWorksheet("Sensores");
 
     worksheet.columns = [
       { header: "Fecha y hora", key: "timestamp", width: 30 },
       { header: "Temperatura (°C)", key: "value", width: 20 },
+      { header: "RPM", key: "rpm", width: 10 },
     ];
 
     data.forEach((item) => {
       worksheet.addRow({
         timestamp: item.timestamp,
-        value: item.value,
+        temperature: item.temperature,
+        rpm: item.rpm,
       });
     });
 
@@ -117,10 +125,7 @@ app.get("/api/temperature/export/xlsx", async (req, res) => {
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=temperaturas.xlsx"
-    );
+    res.setHeader("Content-Disposition", "attachment; filename=sensores.xlsx");
 
     await workbook.xlsx.write(res);
     res.end();

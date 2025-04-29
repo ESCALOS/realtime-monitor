@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import dayjs from "dayjs";
-import { TemperatureData } from "../types";
+import { SensorsData } from "../types";
 
 export type SessionStatus = "idle" | "running" | "paussed" | "stopped";
 
@@ -10,10 +10,11 @@ const socket = io(host);
 
 export function useTemperatureSession() {
   const [status, setStatus] = useState<SessionStatus>("idle");
-  const [data, setData] = useState<TemperatureData[]>([]);
+  const [data, setData] = useState<SensorsData[]>([]);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0); // en segundos
   const [lastTemp, setLasTemp] = useState<number | null>(null);
+  const [lastRpm, setLasRpm] = useState<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [firstCrackTime, setFirstCrackTime] = useState<Date | null>(null);
   const [elapsedSinceFirstCrack, setElapsedSinceFirstCrack] =
@@ -43,25 +44,27 @@ export function useTemperatureSession() {
 
   // Socket
   useEffect(() => {
-    const handleNewTemperature = (newData: TemperatureData) => {
-      const adjustedData: TemperatureData = {
+    const handleNewSensorsData = (newData: SensorsData) => {
+      const adjustedData: SensorsData = {
         ...newData,
         timestamp: dayjs(newData.timestamp)
           .subtract(5, "h")
           .format("YYYY-MM-DDTHH:mm:ss"),
       };
 
-      setLasTemp(adjustedData.value);
+      setLasTemp(adjustedData.temperature);
+
+      setLasRpm(adjustedData.rpm);
 
       if (status === "running") {
         setData((prev) => [...prev, adjustedData]);
       }
     };
 
-    socket.on("new-temperature", handleNewTemperature);
+    socket.on("new-sensors-data", handleNewSensorsData);
 
     return () => {
-      socket.off("new-temperature", handleNewTemperature);
+      socket.off("new-sensors-data", handleNewSensorsData);
     };
   }, [status]);
 
@@ -109,8 +112,8 @@ export function useTemperatureSession() {
 
     if (lastMinuteData.length < 2) return null;
 
-    const first = lastMinuteData[0].value;
-    const last = lastMinuteData[lastMinuteData.length - 1].value;
+    const first = lastMinuteData[0].temperature;
+    const last = lastMinuteData[lastMinuteData.length - 1].temperature;
 
     return (last - first).toFixed(2);
   })();
@@ -137,6 +140,7 @@ export function useTemperatureSession() {
     stop,
     elapsedTime,
     lastTemp,
+    lastRpm,
     deltaTemp,
     startTime,
     firstCrackTime,

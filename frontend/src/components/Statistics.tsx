@@ -10,6 +10,7 @@ type Props = {
   markFirstCrack: () => void;
   firstCrackTime: Date | null;
   lastTemp: number | null;
+  lastRpm: number | null;
   deltaTemp: string | null;
   status: SessionStatus;
 };
@@ -22,11 +23,12 @@ export default function Statistics({
   markFirstCrack,
   firstCrackTime,
   lastTemp,
+  lastRpm,
   deltaTemp,
   status,
 }: Props) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center w-full">
       <div className="relative bg-gray-100 p-4 rounded shadow">
         <p className="text-sm lg:text-2xl text-gray-500">
           {showFirstCrackTimer ? "Desde primer crack" : "Tiempo transcurrido"}
@@ -69,6 +71,12 @@ export default function Statistics({
         <p className="text-sm lg:text-2xl text-gray-500">Δ Temp. (últ. min)</p>
         <p className="text-xl lg:text-4xl font-semibold">
           {deltaTemp !== null ? `${deltaTemp} °C` : "--"}
+        </p>
+      </div>
+      <div className="bg-gray-100 p-4 rounded shadow">
+        <p className="text-sm lg:text-2xl text-gray-500">RPM actual</p>
+        <p className="text-xl lg:text-4xl font-semibold">
+          {lastRpm !== null ? `${lastRpm.toFixed(2)} rpm` : "--"}
         </p>
       </div>
     </div>
